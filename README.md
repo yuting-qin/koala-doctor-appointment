@@ -1,21 +1,73 @@
 # Koala Doctor Appointment
-A online doctor appointment booking system
 
-# Read Me First
-The following was discovered as part of building this project:
+A REST API for an online doctor appointment booking system.
 
-* The original package name 'com.koala.koala-doctor-appointment' is invalid and this project uses 'com.koala.koala_doctor_appointment' instead.
+## Overview
 
-# Getting Started
+The service exposes endpoints for browsing doctor and clinic availability and for booking appointments. Domain concepts:
 
-### Reference Documentation
-For further reference, please consider the following sections:
+- **Practice** — a medical practice that operates one or more clinics.
+- **Clinic** — a physical location with operating hours where doctors hold sessions.
+- **Doctor** — a practitioner with their own working hours, attached to a practice.
+- **Patient** — the booker of an appointment.
+- **Slot / Availability** — bookable time ranges derived from clinic and doctor hours, minus existing appointments.
+- **Appointment** — a confirmed booking against a slot.
 
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/4.0.6/gradle-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/4.0.6/gradle-plugin/packaging-oci-image.html)
+Current endpoints:
 
-### Additional Links
-These additional references should also help you:
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/clinics/{clinicId}/availability?from=&to=` | Available slots at a clinic in a time window |
+| `GET` | `/doctors/{doctorId}/availability?from=&to=` | Available slots for a doctor in a time window |
+| `POST` | `/appointments` | Book an appointment |
 
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
+Errors are returned as [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) `ProblemDetail` responses.
+
+Data is held in in-memory repositories and pre-populated with seed data on startup, so the API is usable without any external dependencies.
+
+## Tech
+
+- Java 25 (Gradle toolchain — installed automatically if missing)
+- Spring Boot 4.0.6
+- Gradle Kotlin DSL
+- springdoc-openapi for runtime API docs and build-time OpenAPI spec generation
+
+## Running the application
+
+From the project root:
+
+```
+./gradlew bootRun
+```
+
+The service starts on `http://localhost:8080`.
+
+Quick check:
+
+```
+curl http://localhost:8080/clinics/<clinicId>/availability?from=2026-05-05T00:00:00Z&to=2026-05-06T00:00:00Z
+```
+
+Live API docs while the app is running:
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- OpenAPI YAML: `http://localhost:8080/v3/api-docs.yaml`
+
+## Running tests
+
+```
+./gradlew test
+```
+
+## OpenAPI spec
+
+The committed OpenAPI spec lives at [`docs/openapi/openapi.yaml`](docs/openapi/openapi.yaml) so API changes show up in PR diffs.
+
+To regenerate it after changing controllers or DTOs (stop `bootRun` first — the task forks its own Spring Boot process on port 8080):
+
+```
+./gradlew clean generateOpenApiDocs
+```
+
+Commit the updated spec along with the source changes.
