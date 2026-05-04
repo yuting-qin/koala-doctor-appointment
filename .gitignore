@@ -1,6 +1,7 @@
 # Build tool directories
 .gradle/
 build/
+brain_dump/
 
 # IDE directories
 .idea/
