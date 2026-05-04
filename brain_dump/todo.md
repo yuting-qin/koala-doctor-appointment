@@ -1,4 +1,0 @@
-- Add github workflow to have CI/CD
-- Add steps to publish docker container
-- Add a decision register folder under ./docs to record decisions
-- 
