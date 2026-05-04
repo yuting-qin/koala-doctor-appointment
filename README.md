@@ -71,3 +71,11 @@ To regenerate it after changing controllers or DTOs (stop `bootRun` first — th
 ```
 
 Commit the updated spec along with the source changes.
+
+A pre-push git hook (in [`.githooks/pre-push`](.githooks/pre-push)) regenerates the spec automatically and blocks the push if it drifts from the committed file, so you don't have to remember. The hook is shared via the repo and self-installs the first time you run `./gradlew build` (it points `core.hooksPath` at `.githooks`). To install manually without a build:
+
+```
+./gradlew installGitHooks
+```
+
+CI runs the same drift check, so a forgotten regeneration is caught either at push time or in CI.

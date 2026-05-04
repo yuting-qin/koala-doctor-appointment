@@ -39,3 +39,23 @@ openApi {
 	outputDir.set(layout.projectDirectory.dir("docs/openapi"))
 	outputFileName.set("openapi.yaml")
 }
+
+val installGitHooks by tasks.registering(Exec::class) {
+	description = "Points local git at the shared hooks in .githooks (auto-runs as part of build)"
+	group = "git hooks"
+	commandLine("git", "config", "core.hooksPath", ".githooks")
+	isIgnoreExitValue = true
+	onlyIf {
+		val process = ProcessBuilder("git", "config", "--get", "core.hooksPath")
+			.directory(rootDir)
+			.redirectErrorStream(true)
+			.start()
+		process.waitFor()
+		val current = process.inputStream.bufferedReader().readText().trim()
+		current != ".githooks"
+	}
+}
+
+tasks.named("build") {
+	dependsOn(installGitHooks)
+}

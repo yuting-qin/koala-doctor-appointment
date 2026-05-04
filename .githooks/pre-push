@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Regenerates the committed OpenAPI spec and blocks the push if it drifts
+# from what's in the repo. See docs/openapi/openapi.yaml.
+set -e
+
+echo "[pre-push] Regenerating OpenAPI spec..."
+./gradlew generateOpenApiDocs --quiet
+
+if [ -n "$(git status --porcelain -- docs/openapi/openapi.yaml)" ]; then
+    echo ""
+    echo "ERROR: OpenAPI spec is out of date."
+    echo "Your changes affect the API surface. Please commit the regenerated"
+    echo "docs/openapi/openapi.yaml and push again."
+    echo ""
+    git --no-pager diff --stat -- docs/openapi/openapi.yaml
+    exit 1
+fi
+
+echo "[pre-push] OpenAPI spec is up to date."
