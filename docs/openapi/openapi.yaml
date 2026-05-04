@@ -1,0 +1,203 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /appointments:
+    post:
+      tags:
+      - appointment-controller
+      operationId: book
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppointmentResponse"
+  /doctors/{doctorId}/availability:
+    get:
+      tags:
+      - availability-controller
+      operationId: getDoctorAvailability
+      parameters:
+      - name: doctorId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: from
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/DoctorAvailabilityResponse"
+  /clinics/{clinicId}/availability:
+    get:
+      tags:
+      - availability-controller
+      operationId: getClinicAvailability
+      parameters:
+      - name: clinicId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: from
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClinicAvailabilityResponse"
+components:
+  schemas:
+    AppointmentRequest:
+      type: object
+      properties:
+        practiceId:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        startTime:
+          type: string
+          format: date-time
+      required:
+      - patientId
+      - practiceId
+      - startTime
+    AppointmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        practiceId:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    DoctorAvailabilityResponse:
+      type: object
+      properties:
+        doctorId:
+          type: string
+          format: uuid
+        doctorName:
+          type: string
+        specialty:
+          type: string
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        practices:
+          type: array
+          items:
+            $ref: "#/components/schemas/PracticeAvailabilityResponse"
+    PracticeAvailabilityResponse:
+      type: object
+      properties:
+        practiceId:
+          type: string
+          format: uuid
+        doctorId:
+          type: string
+          format: uuid
+        doctorName:
+          type: string
+        specialty:
+          type: string
+        clinicId:
+          type: string
+          format: uuid
+        clinicName:
+          type: string
+        timezone:
+          type: string
+        slotDurationMinutes:
+          type: integer
+          format: int32
+        slots:
+          type: array
+          items:
+            $ref: "#/components/schemas/SlotResponse"
+    SlotResponse:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+    ClinicAvailabilityResponse:
+      type: object
+      properties:
+        clinicId:
+          type: string
+          format: uuid
+        clinicName:
+          type: string
+        timezone:
+          type: string
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        practices:
+          type: array
+          items:
+            $ref: "#/components/schemas/PracticeAvailabilityResponse"
